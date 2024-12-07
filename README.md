@@ -17,6 +17,8 @@ pip install keepassdiff
 
 Run `kpd` or `kpdiff` to run the tool.
 
+![image](https://github.com/user-attachments/assets/22cb63db-83fa-41af-ad1d-b757144cbe5d)
+
 ## Features
 
 - [x] Support for KeePassXC databases
