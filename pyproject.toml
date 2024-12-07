@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "keepassdiff"
+version = "0.1.0"
+description = "KeePass Database Comparison Tool"
+authors = ["Billy <billydevbusiness@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+include = ["keepassdiff"]
+
+[tool.poetry.scripts]
+kpd = "KeePassDiff.launch:launch"
+kpdiff = "KeePassDiff.launch:launch"
+keepassdiff = "KeePassDiff.launch:launch"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pykeepass = "^4.1.0.post1"
+streamlit = "^1.40.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
