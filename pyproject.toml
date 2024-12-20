@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "keepassdiff"
-version = "0.1.5"
+version = "0.1.6"
 description = "A diff/merge tool for KeePassXC databases"
 authors = ["Billy <billydevbusiness@gmail.com>"]
 license = "MIT"

@@ -22,12 +22,12 @@ def get_entries_set(kp: PyKeePass) -> Dict[str, Set[str]]:
     groups = set()
 
     for entry in kp.entries:
-        entry_path = "/".join([g.name for g in entry.path[:-1]] + [entry.title])
+        entry_path = "/".join([g for g in entry.path[:-1]] + [entry.title])
         entries.add(entry_path)
 
     for group in kp.groups:
-        if group.name != "Root":
-            group_path = "/".join([g.name for g in group.path])
+        if group != "Root":
+            group_path = "/".join([g for g in group.path])
             groups.add(group_path)
 
     return {"entries": entries, "groups": groups}
@@ -39,7 +39,7 @@ def get_entry_details(kp: PyKeePass, entry_path: str) -> Dict:
     group_path = path_parts[:-1]
 
     for entry in kp.entries:
-        if entry.title == title and [g.name for g in entry.path[:-1]] == group_path:
+        if entry.title == title and [g for g in entry.path[:-1]] == group_path:
             return {
                 "title": entry.title,
                 "username": entry.username,
@@ -60,7 +60,7 @@ def merge_entry(source_kp: PyKeePass, target_kp: PyKeePass, entry_path: str) -> 
 
     source_entry = None
     for entry in source_kp.entries:
-        if entry.title == title and [g.name for g in entry.path[:-1]] == group_path:
+        if entry.title == title and [g for g in entry.path[:-1]] == group_path:
             source_entry = entry
             break
 
@@ -69,9 +69,7 @@ def merge_entry(source_kp: PyKeePass, target_kp: PyKeePass, entry_path: str) -> 
 
     current_group = target_kp.root_group
     for group_name in group_path:
-        next_group = next(
-            (g for g in current_group.subgroups if g.name == group_name), None
-        )
+        next_group = next((g for g in current_group.subgroups if g == group_name), None)
         if not next_group:
             next_group = target_kp.add_group(current_group, group_name)
         current_group = next_group
