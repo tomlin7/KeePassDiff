@@ -5,13 +5,34 @@ from pykeepass import PyKeePass
 
 
 def save_temp_database(db_file, keyfile=None) -> Tuple[str, Optional[str]]:
+    # Handle if db_file is a file-like object or a file path
+    if hasattr(db_file, "getvalue"):
+        db_bytes = db_file.getvalue()
+    elif hasattr(db_file, "read"):
+        db_bytes = db_file.read()
+    elif isinstance(db_file, (str, bytes)):
+        # Assume it's a file path
+        with open(db_file, "rb") as f:
+            db_bytes = f.read()
+    else:
+        raise ValueError("db_file must be a file-like object or a file path")
+
     with tempfile.NamedTemporaryFile(delete=False, suffix=".kdbx") as tmp:
-        tmp.write(db_file.getvalue())
+        tmp.write(db_bytes)
         tmp_keyfile = None
 
         if keyfile:
+            if hasattr(keyfile, "getvalue"):
+                key_bytes = keyfile.getvalue()
+            elif hasattr(keyfile, "read"):
+                key_bytes = keyfile.read()
+            elif isinstance(keyfile, (str, bytes)):
+                with open(keyfile, "rb") as f:
+                    key_bytes = f.read()
+            else:
+                raise ValueError("keyfile must be a file-like object or a file path")
             with tempfile.NamedTemporaryFile(delete=False) as ktmp:
-                ktmp.write(keyfile.getvalue())
+                ktmp.write(key_bytes)
                 tmp_keyfile = ktmp.name
 
         return tmp.name, tmp_keyfile
@@ -22,12 +43,16 @@ def get_entries_set(kp: PyKeePass) -> Dict[str, Set[str]]:
     groups = set()
 
     for entry in kp.entries:
-        entry_path = "/".join([g for g in entry.path[:-1]] + [entry.title])
+        # Ensure all elements are strings and not None
+        entry_path = "/".join(
+            [str(g) for g in entry.path[:-1] if g is not None]
+            + [str(entry.title) if entry.title is not None else ""]
+        )
         entries.add(entry_path)
 
     for group in kp.groups:
         if group != "Root":
-            group_path = "/".join([g for g in group.path])
+            group_path = "/".join([str(g) for g in group.path if g is not None])
             groups.add(group_path)
 
     return {"entries": entries, "groups": groups}
@@ -39,7 +64,10 @@ def get_entry_details(kp: PyKeePass, entry_path: str) -> Dict:
     group_path = path_parts[:-1]
 
     for entry in kp.entries:
-        if entry.title == title and [g for g in entry.path[:-1]] == group_path:
+        if (
+            entry.title == title
+            and [str(g) for g in entry.path[:-1] if g is not None] == group_path
+        ):
             return {
                 "title": entry.title,
                 "username": entry.username,
