@@ -5,9 +5,8 @@ from streamlit.web import cli
 
 def launch():
     path = os.path.dirname(os.path.abspath(__file__))
-    app_path = f"{path}/app.py"
 
-    sys.argv = ["streamlit", "run", f"{app_path}"]
+    sys.argv = ["streamlit", "run", f"{os.path.join(path, "app.py")}"]
     sys.exit(cli.main())
 
 
