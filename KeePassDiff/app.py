@@ -45,6 +45,15 @@ def main():
         st.warning("You need to open two databases to diff them")
         return
 
+    if "expanded_entries" not in st.session_state:
+        st.session_state["expanded_entries"] = set()
+
+    def toggle_entry(key):
+        if key in st.session_state["expanded_entries"]:
+            st.session_state["expanded_entries"].remove(key)
+        else:
+            st.session_state["expanded_entries"].add(key)
+
     try:
         tmp1_name, tmp1_keyfile = save_temp_database(db1_file, db1_keyfile)
         tmp2_name, tmp2_keyfile = save_temp_database(db2_file, db2_keyfile)
@@ -69,9 +78,16 @@ def main():
                         for entry in differences["entries_only_in_db1"]:
                             col1_1, col1_2 = st.columns([4, 1])
                             with col1_1:
-                                if st.button(f"📝 {entry}", key=f"view1_{entry}"):
+                                view_key = f"view1_{entry}"
+                                st.button(
+                                    f"📝 {entry}",
+                                    key=view_key,
+                                    on_click=toggle_entry,
+                                    args=(view_key,),
+                                )
+                                if view_key in st.session_state["expanded_entries"]:
                                     entry_details = get_entry_details(kp1, entry)
-                                    show_entry_details(entry_details)
+                                    show_entry_details(entry_details, key=view_key)
                             with col1_2:
                                 if st.button(
                                     "Merge right ➡️", key=f"merge_right_{entry}"
@@ -95,9 +111,16 @@ def main():
                         for entry in differences["entries_only_in_db2"]:
                             col2_1, col2_2 = st.columns([4, 1])
                             with col2_1:
-                                if st.button(f"📝 {entry}", key=f"view2_{entry}"):
+                                view_key = f"view2_{entry}"
+                                st.button(
+                                    f"📝 {entry}",
+                                    key=view_key,
+                                    on_click=toggle_entry,
+                                    args=(view_key,),
+                                )
+                                if view_key in st.session_state["expanded_entries"]:
                                     entry_details = get_entry_details(kp2, entry)
-                                    show_entry_details(entry_details)
+                                    show_entry_details(entry_details, key=view_key)
                             with col2_2:
                                 if st.button("⬅️ Merge left", key=f"merge_left_{entry}"):
                                     if merge_entry(kp2, kp1, entry):
@@ -119,17 +142,29 @@ def main():
                     for entry in differences["common_entries"]:
                         col1, col2 = st.columns([1, 1])
                         with col1:
-                            if st.button(
-                                f"📝 View in DB1: {entry}", key=f"view1_common_{entry}"
-                            ):
+                            view_key = f"view1_common_{entry}"
+                            st.button(
+                                f"📝 View in DB1: {entry}",
+                                key=view_key,
+                                on_click=toggle_entry,
+                                args=(view_key,),
+                            )
+                            if view_key in st.session_state["expanded_entries"]:
+                                int_key = view_key + "_common_1"
                                 entry_details = get_entry_details(kp1, entry)
-                                show_entry_details(entry_details)
+                                show_entry_details(entry_details, key=int_key)
                         with col2:
-                            if st.button(
-                                f"📝 View in DB2: {entry}", key=f"view2_common_{entry}"
-                            ):
+                            view_key = f"view2_common_{entry}"
+                            st.button(
+                                f"📝 View in DB2: {entry}",
+                                key=view_key,
+                                on_click=toggle_entry,
+                                args=(view_key,),
+                            )
+                            if view_key in st.session_state["expanded_entries"]:
+                                int_key = view_key + "_common_2"
                                 entry_details = get_entry_details(kp2, entry)
-                                show_entry_details(entry_details)
+                                show_entry_details(entry_details, key=int_key)
                 else:
                     st.write("No common entries found")
 
