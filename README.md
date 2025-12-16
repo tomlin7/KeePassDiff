@@ -1,3 +1,11 @@
+> ## 💡 KeePassDiff 2 - Open beta available!
+>
+> I’m working on **KeePassDiff 2**, a desktop version with a modern UI and a git-like diff & merge experience for KeePass (`.kdbx`) databases. Designed for long-out-of-sync databases and real-world merge scenarios that the original version couldn’t handle.
+>
+> 👉 Open beta / inviting testers
+>
+> 👉 [Click if you want to try it out](https://github.com/tomlin7/KeePassDiff2)
+
 # KeePassDiff
 
 I started using KeePass back in 2021 and I have been using it since then to store my passwords. But I didn't set up a proper way to sync the database between my devices. So I ended up with multiple databases with different passwords and entries. I wanted to sort of **diff the databases and merge them** into one, like git diff -- resolving conflicts, reverting, etc. Well, KeePass doesn't provide a way to diff two databases. Hence this project.
