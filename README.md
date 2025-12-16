@@ -2,9 +2,10 @@
 >
 > I’m working on **KeePassDiff 2**, a desktop version with a modern UI and a git-like diff & merge experience for KeePass (`.kdbx`) databases. Designed for long-out-of-sync databases and real-world merge scenarios that the original version couldn’t handle.
 >
-> 👉 Open beta / inviting testers
->
 > 👉 [Click if you want to try it out](https://github.com/tomlin7/KeePassDiff2)
+> 
+> <img width="1177" height="820" alt="image" src="https://github.com/user-attachments/assets/1119ba3a-7aeb-4307-87a5-af5e6960ce62" />
+
 
 # KeePassDiff
 
