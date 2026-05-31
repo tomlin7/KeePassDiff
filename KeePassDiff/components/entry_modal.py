@@ -1,9 +1,12 @@
-from typing import Dict, Optional
-
 import streamlit as st
 
+from KeePassDiff.utils.database import EntryDetails
 
-def show_entry_details(entry_details: Optional[Dict] = None, key: str = None):
+
+def show_entry_details(
+    entry_details: EntryDetails | None = None,
+    key: str = "",
+):
     if entry_details:
         st.markdown("### Entry Details")
         st.markdown(f"**Title:** {entry_details['title']}")
@@ -12,11 +15,12 @@ def show_entry_details(entry_details: Optional[Dict] = None, key: str = None):
         st.markdown(f"**URL:** {entry_details['url']}")
         st.markdown("**Notes:**")
         st.text_area(
-            "",
+            "notes",
+            label_visibility="collapsed",
             value=entry_details["notes"],
             height=100,
             disabled=True,
-            key=f"notes_{key}" if key else None,
+            key=f"notes_{key}",
         )
         st.markdown(f"**Created:** {entry_details['created']}")
         st.markdown(f"**Modified:** {entry_details['modified']}")

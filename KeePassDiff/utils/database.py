@@ -1,7 +1,19 @@
+import datetime
 import tempfile
-from typing import Dict, Optional, Set, Tuple
+from typing import TypedDict, Dict, Optional, Set, Tuple
 
-from pykeepass import PyKeePass
+from pykeepass import Group, PyKeePass
+
+
+class EntryDetails(TypedDict):
+    title: str | None
+    username: str | None
+    password: str | None
+    url: str | None
+    notes: str | None
+    created: datetime.datetime | None
+    modified: datetime.datetime | None
+    path: str
 
 
 def save_temp_database(db_file, keyfile=None) -> Tuple[str, Optional[str]]:
@@ -42,42 +54,45 @@ def get_entries_set(kp: PyKeePass) -> Dict[str, Set[str]]:
     entries = set()
     groups = set()
 
-    for entry in kp.entries:
-        # Ensure all elements are strings and not None
-        entry_path = "/".join(
-            [str(g) for g in entry.path[:-1] if g is not None]
-            + [str(entry.title) if entry.title is not None else ""]
-        )
-        entries.add(entry_path)
+    if kp.entries:
+        for entry in kp.entries:
+            # Ensure all elements are strings and not None
+            entry_path = "/".join(
+                [str(g) for g in entry.path[:-1] if g is not None]
+                + [str(entry.title) if entry.title is not None else ""]
+            )
+            entries.add(entry_path)
 
-    for group in kp.groups:
-        if group != "Root":
-            group_path = "/".join([str(g) for g in group.path if g is not None])
-            groups.add(group_path)
+    if kp.groups:
+        for group in kp.groups:
+            if group != "Root":
+                group_path = "/".join([str(g) for g in group.path if g is not None])
+                groups.add(group_path)
 
     return {"entries": entries, "groups": groups}
 
 
-def get_entry_details(kp: PyKeePass, entry_path: str) -> Dict:
+def get_entry_details(kp: PyKeePass, entry_path: str) -> EntryDetails | None:
     path_parts = entry_path.split("/")
     title = path_parts[-1]
     group_path = path_parts[:-1]
 
-    for entry in kp.entries:
-        if (
-            entry.title == title
-            and [str(g) for g in entry.path[:-1] if g is not None] == group_path
-        ):
-            return {
-                "title": entry.title,
-                "username": entry.username,
-                "password": entry.password,
-                "url": entry.url,
-                "notes": entry.notes,
-                "created": entry.ctime,
-                "modified": entry.mtime,
-                "path": "/".join(group_path),
-            }
+    if kp.entries:
+        for entry in kp.entries:
+            if (
+                entry.title == title
+                and [str(g) for g in entry.path[:-1] if g is not None] == group_path
+            ):
+                return {
+                    "title": entry.title,
+                    "username": entry.username,
+                    "password": entry.password,
+                    "url": entry.url,
+                    "notes": entry.notes,
+                    "created": entry.ctime,
+                    "modified": entry.mtime,
+                    "path": "/".join(group_path),
+                }
     return None
 
 
@@ -87,16 +102,21 @@ def merge_entry(source_kp: PyKeePass, target_kp: PyKeePass, entry_path: str) -> 
     group_path = path_parts[:-1]
 
     source_entry = None
-    for entry in source_kp.entries:
-        if entry.title == title and [g for g in entry.path[:-1]] == group_path:
-            source_entry = entry
-            break
+    if source_kp.entries:
+        for entry in source_kp.entries:
+            if entry.title == title and [g for g in entry.path[:-1]] == group_path:
+                source_entry = entry
+                break
 
     if not source_entry:
         return False
 
     current_group = target_kp.root_group
+
     for group_name in group_path:
+        if current_group != Group:
+            return False
+
         next_group = next((g for g in current_group.subgroups if g == group_name), None)
         if not next_group:
             next_group = target_kp.add_group(current_group, group_name)
