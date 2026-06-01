@@ -4,7 +4,7 @@ import streamlit as st
 from components.entry_modal import show_entry_details
 from pykeepass import PyKeePass
 
-from KeePassDiff.utils.comparison import compare_databases
+from KeePassDiff.utils.comparison import compare_databases, compare_entries
 from KeePassDiff.utils.database import (
     get_entries_set,
     get_entry_details,
@@ -68,7 +68,14 @@ def main():
 
             st.header("Diff Results")
 
-            tabs = st.tabs(["Exclusive Entries", "Conflicting Items", "Merge & Export"])
+            tabs = st.tabs(
+                [
+                    "Exclusive Items",
+                    "Common Items",
+                    "Conflicting Items",
+                    "Merge & Export",
+                ]
+            )
             with tabs[0]:
                 col1, col2 = st.columns(2)
 
@@ -122,7 +129,9 @@ def main():
                                     entry_details = get_entry_details(kp2, entry)
                                     show_entry_details(entry_details, key=view_key)
                             with col2_2:
-                                if st.button("⬅️ Merge left", key=f"merge_left_{entry}"):
+                                if st.button(
+                                    "⬅️ Merge left", key=f"merge_left_{entry}"
+                                ):
                                     if merge_entry(kp2, kp1, entry):
                                         st.success(f"Merged {entry} to first database")
                                         kp1.save()
@@ -135,11 +144,18 @@ def main():
                             st.warning(group)
                     else:
                         st.write("None")
-
             with tabs[1]:
-                st.subheader("Conflicting Entries")
+                st.subheader("Common Entries")
                 if differences["common_entries"]:
+                    conflicts = False
                     for entry in differences["common_entries"]:
+
+                        entry1_details = get_entry_details(kp1, entry)
+                        entry2_details = get_entry_details(kp2, entry)
+                        if compare_entries(entry1_details, entry2_details) == 1:
+                            continue
+                        conflicts = True
+
                         col1, col2 = st.columns([1, 1])
                         with col1:
                             view_key = f"view1_common_{entry}"
@@ -151,8 +167,7 @@ def main():
                             )
                             if view_key in st.session_state["expanded_entries"]:
                                 int_key = view_key + "_common_1"
-                                entry_details = get_entry_details(kp1, entry)
-                                show_entry_details(entry_details, key=int_key)
+                                show_entry_details(entry1_details, key=int_key)
                         with col2:
                             view_key = f"view2_common_{entry}"
                             st.button(
@@ -163,19 +178,64 @@ def main():
                             )
                             if view_key in st.session_state["expanded_entries"]:
                                 int_key = view_key + "_common_2"
-                                entry_details = get_entry_details(kp2, entry)
-                                show_entry_details(entry_details, key=int_key)
+                                show_entry_details(entry2_details, key=int_key)
+                    if not conflicts:
+                        st.write("All common entries conflict")
                 else:
                     st.write("No common entries found")
 
-                st.subheader("Conflicting Groups")
+                st.subheader("Common Groups")
                 if differences["common_groups"]:
                     for group in differences["common_groups"]:
                         st.success(group)
                 else:
                     st.write("No common groups found")
-
             with tabs[2]:
+                st.subheader("Conflicting Entries")
+                if differences["common_entries"]:
+                    conflicts = []
+                    for entry in differences["common_entries"]:
+                        entry1_details = get_entry_details(kp1, entry)
+                        entry2_details = get_entry_details(kp2, entry)
+
+                        conflicts = compare_entries(entry1_details, entry2_details)
+
+                        if len(conflicts) == 0:
+                            continue
+
+                        col1, col2 = st.columns([1, 1])
+                        with col1:
+                            view_key = f"view1_conflict_{entry}"
+                            st.button(
+                                f"📝 View in DB1: {entry}",
+                                key=view_key,
+                                on_click=toggle_entry,
+                                args=(view_key,),
+                            )
+                            if view_key in st.session_state["expanded_entries"]:
+                                int_key = view_key + "_conflict_1"
+                                show_entry_details(
+                                    entry1_details, key=int_key, conflicts=conflicts
+                                )
+                        with col2:
+                            view_key = f"view2_conflict_{entry}"
+                            st.button(
+                                f"📝 View in DB2: {entry}",
+                                key=view_key,
+                                on_click=toggle_entry,
+                                args=(view_key,),
+                            )
+                            if view_key in st.session_state["expanded_entries"]:
+                                int_key = view_key + "_conflict_2"
+                                show_entry_details(
+                                    entry2_details, key=int_key, conflicts=conflicts
+                                )
+                    if len(conflicts) == 0:
+                        st.write("No conflicting entries found")
+                else:
+                    st.write("No common entries found")
+
+            with tabs[3]:
                 st.subheader("Export Merged Database")
                 col1, col2 = st.columns(2)
 

@@ -65,7 +65,7 @@ def get_entries_set(kp: PyKeePass) -> Dict[str, Set[str]]:
 
     if kp.groups:
         for group in kp.groups:
-            if group != "Root":
+            if not group.is_root_group:
                 group_path = "/".join([str(g) for g in group.path if g is not None])
                 groups.add(group_path)
 

@@ -1,5 +1,9 @@
 from typing import Dict, Set, List
 
+from pykeepass import Group
+
+from KeePassDiff.utils.database import EntryDetails
+
 
 def compare_databases(
     db1_data: Dict[str, Set[str]], db2_data: Dict[str, Set[str]]
@@ -12,3 +16,19 @@ def compare_databases(
         "groups_only_in_db2": sorted(db2_data["groups"] - db2_data["groups"]),
         "common_groups": sorted(db1_data["groups"] & db2_data["groups"]),
     }
+
+
+def compare_entries(entry1: EntryDetails | None, entry2: EntryDetails | None):
+
+    if entry1 == None or entry2 == None:
+        return []
+    if entry1 == entry2:
+        return []
+
+    conflicts = []
+
+    for key in entry1.keys():
+        if entry1[key] != entry2[key]:
+            conflicts.append(key)
+
+    return conflicts
