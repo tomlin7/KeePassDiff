@@ -1,7 +1,5 @@
 from typing import Dict, Set, List
 
-from pykeepass import Group
-
 from KeePassDiff.utils.database import EntryDetails
 
 

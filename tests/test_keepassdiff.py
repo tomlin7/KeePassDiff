@@ -97,6 +97,10 @@ def test_get_entries_set_handles_none(monkeypatch):
         def __init__(self):
             self.path = [None, "group"]
 
+        @property
+        def is_root_group(self):
+            return False
+
     class DummyKP:
         entries = [DummyEntry()]
         groups = [DummyGroup()]
@@ -148,15 +152,15 @@ def test_diff_and_merge_on_programmatic_db():
     expected_db2_entries = db2_data["entries"]
     assert expected_db1_entries == {"a", "b"}, f"db1 entries: {expected_db1_entries}"
     assert expected_db2_entries == {"b", "c"}, f"db2 entries: {expected_db2_entries}"
-    assert set(differences["entries_only_in_db1"]) == {"a"}, (
-        f"entries_only_in_db1: {differences['entries_only_in_db1']}"
-    )
-    assert set(differences["entries_only_in_db2"]) == {"c"}, (
-        f"entries_only_in_db2: {differences['entries_only_in_db2']}"
-    )
-    assert set(differences["common_entries"]) == {"b"}, (
-        f"common_entries: {differences['common_entries']}"
-    )
+    assert set(differences["entries_only_in_db1"]) == {
+        "a"
+    }, f"entries_only_in_db1: {differences['entries_only_in_db1']}"
+    assert set(differences["entries_only_in_db2"]) == {
+        "c"
+    }, f"entries_only_in_db2: {differences['entries_only_in_db2']}"
+    assert set(differences["common_entries"]) == {
+        "b"
+    }, f"common_entries: {differences['common_entries']}"
 
     # Test merge
     assert merge_entry(kp2, kp1, "c")
