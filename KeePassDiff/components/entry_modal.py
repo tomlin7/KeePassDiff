@@ -5,7 +5,7 @@ from KeePassDiff.utils.database import EntryDetails
 
 def show_entry_details(
     entry_details: EntryDetails | None = None,
-    key: str = "",
+    key: str | None = None,
 ):
     if entry_details:
         st.markdown("### Entry Details")

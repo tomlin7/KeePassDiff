@@ -113,11 +113,13 @@ def merge_entry(source_kp: PyKeePass, target_kp: PyKeePass, entry_path: str) -> 
 
     current_group = target_kp.root_group
 
-    for group_name in group_path:
-        if current_group != Group:
-            return False
+    if not isinstance(current_group, Group):
+        return False
 
-        next_group = next((g for g in current_group.subgroups if g == group_name), None)
+    for group_name in group_path:
+        next_group = next(
+            (g for g in current_group.subgroups if g.name == group_name), None
+        )
         if not next_group:
             next_group = target_kp.add_group(current_group, group_name)
         current_group = next_group
