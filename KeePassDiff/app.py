@@ -147,14 +147,16 @@ def main():
             with tabs[1]:
                 st.subheader("Common Entries")
                 if differences["common_entries"]:
-                    conflicts = False
+                    any_common = False
                     for entry in differences["common_entries"]:
 
                         entry1_details = get_entry_details(kp1, entry)
                         entry2_details = get_entry_details(kp2, entry)
-                        if compare_entries(entry1_details, entry2_details) == 1:
+
+                        if len(compare_entries(entry1_details, entry2_details)) > 0:
                             continue
-                        conflicts = True
+
+                        any_common = True
 
                         col1, col2 = st.columns([1, 1])
                         with col1:
@@ -179,7 +181,7 @@ def main():
                             if view_key in st.session_state["expanded_entries"]:
                                 int_key = view_key + "_common_2"
                                 show_entry_details(entry2_details, key=int_key)
-                    if not conflicts:
+                    if not any_common:
                         st.write("All common entries conflict")
                 else:
                     st.write("No common entries found")

@@ -16,9 +16,11 @@ def compare_databases(
     }
 
 
-def compare_entries(entry1: EntryDetails | None, entry2: EntryDetails | None):
+def compare_entries(
+    entry1: EntryDetails | None, entry2: EntryDetails | None
+) -> List[str]:
 
-    if entry1 == None or entry2 == None:
+    if entry1 is None or entry2 is None:
         return []
     if entry1 == entry2:
         return []
