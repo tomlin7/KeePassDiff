@@ -11,7 +11,7 @@ def compare_databases(
         "entries_only_in_db2": sorted(db2_data["entries"] - db1_data["entries"]),
         "common_entries": sorted(db1_data["entries"] & db2_data["entries"]),
         "groups_only_in_db1": sorted(db1_data["groups"] - db2_data["groups"]),
-        "groups_only_in_db2": sorted(db2_data["groups"] - db2_data["groups"]),
+        "groups_only_in_db2": sorted(db2_data["groups"] - db1_data["groups"]),
         "common_groups": sorted(db1_data["groups"] & db2_data["groups"]),
     }
 
